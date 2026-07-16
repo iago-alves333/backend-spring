@@ -2,6 +2,7 @@ package br.ufpb.dcx.iago.lojadejogos.backend.service;
 
 import br.ufpb.dcx.iago.lojadejogos.backend.dto.JogoRequestDTO;
 import br.ufpb.dcx.iago.lojadejogos.backend.dto.JogoResponseDTO;
+import br.ufpb.dcx.iago.lojadejogos.backend.exception.ResourceNotFoundException;
 import br.ufpb.dcx.iago.lojadejogos.backend.model.Jogo;
 import br.ufpb.dcx.iago.lojadejogos.backend.repository.JogoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,33 +37,35 @@ public class JogoService {
         return converterParaDTO(jogoSalvo);
     }
 
-    public JogoResponseDTO buscarPorId(Long id) {
-        Jogo j = jogoRepository.findById(id).orElse(null);
-        if (j != null) {
-            return converterParaDTO(j); // Aqui de novo!
-        }
-        return null;
+    public JogoResponseDTO buscarPorId(Long id) throws ResourceNotFoundException {
+        // Correção 1.2: Uso correto do orElseThrow com lambda
+        Jogo j = jogoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException());
+
+        return converterParaDTO(j);
     }
 
-    public void deletarPorId(Long id) {
+    public void deletarPorId(Long id) throws ResourceNotFoundException {
+        // Correção 1.4: Verifica com existsById e lança ResourceNotFoundException
+        if (!jogoRepository.existsById(id)) {
+            throw new ResourceNotFoundException();
+        }
         jogoRepository.deleteById(id);
     }
 
-    public JogoResponseDTO atualizar(Long id, JogoRequestDTO dto) {
-        Jogo jogoExistente = jogoRepository.findById(id).orElse(null);
+    public JogoResponseDTO atualizar(Long id, JogoRequestDTO dto) throws ResourceNotFoundException {
+        // Correção 1.3: Padronizado usando orElseThrow, código mais limpo
+        Jogo jogoExistente = jogoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException());
 
-        if (jogoExistente != null) {
-            // Atualizamos a entidade com os dados que vieram do DTO
-            jogoExistente.setNome(dto.getNome());
-            jogoExistente.setPreco(dto.getPreco());
-            jogoExistente.setTipo(dto.getTipo());
-            jogoExistente.setUrlImagem(dto.getUrlImagem());
+        jogoExistente.setNome(dto.getNome());
+        jogoExistente.setPreco(dto.getPreco());
+        jogoExistente.setTipo(dto.getTipo());
+        jogoExistente.setUrlImagem(dto.getUrlImagem());
 
-            Jogo jogoAtualizado = jogoRepository.save(jogoExistente);
+        Jogo jogoAtualizado = jogoRepository.save(jogoExistente);
 
-            return converterParaDTO(jogoAtualizado);
-        }
-        return null;
+        return converterParaDTO(jogoAtualizado);
     }
 
     private JogoResponseDTO converterParaDTO(Jogo jogo) {
