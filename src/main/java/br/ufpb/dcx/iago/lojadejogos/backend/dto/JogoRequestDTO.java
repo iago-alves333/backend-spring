@@ -1,13 +1,21 @@
 package br.ufpb.dcx.iago.lojadejogos.backend.dto;
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.math.BigDecimal;
 
 public class JogoRequestDTO {
     // TODO: Adicionar atributos necessários para criar ou atualizar um Jogo a partir do JSON recebido
     // TODO: Adicionar getters e setters
+    @NotBlank(message = "Nome é obrigatorio")
+    @Size(min = 1 ,max = 100)
     private String nome;
+    @NotBlank
     private String tipo;
     private String urlImagem;
+    @DecimalMin(value = "0.0", message = "Não pode ser negativo")
     private BigDecimal preco;
 
     public String getNome() {

@@ -1,9 +1,12 @@
 package br.ufpb.dcx.iago.lojadejogos.backend.dto;
 
 
-public class CompraRequestDTO {
+import jakarta.validation.constraints.NotNull;
 
+public class CompraRequestDTO {
+    @NotNull(message = "Id do usuário é obrigatorio")
     private Long userId;
+    @NotNull(message = "ID do jogo é obrigatório")
     private Long jogoId;
 
     // Getters e Setters

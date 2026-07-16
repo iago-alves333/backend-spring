@@ -3,6 +3,7 @@ package br.ufpb.dcx.iago.lojadejogos.backend.controller;
 import br.ufpb.dcx.iago.lojadejogos.backend.dto.CompraRequestDTO;
 import br.ufpb.dcx.iago.lojadejogos.backend.dto.CompraResponseDTO;
 import br.ufpb.dcx.iago.lojadejogos.backend.service.CompraService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,7 +18,7 @@ public class CompraController {
     private CompraService compraService;
 
     @PostMapping
-    public CompraResponseDTO realizarCompra(@RequestBody CompraRequestDTO dto) {
+    public CompraResponseDTO realizarCompra(@Valid  @RequestBody CompraRequestDTO dto) {
         return compraService.realizarCompra(dto);
     }
 }
