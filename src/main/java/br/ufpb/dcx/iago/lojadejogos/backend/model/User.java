@@ -16,6 +16,10 @@ public class User {
     private Long id;
 
     private String nome;
+
+    @Column(unique = true, nullable = false)
+    private String email;
+
     private BigDecimal saldo;
     private String senha;
     private boolean isAdmin;
@@ -42,6 +46,14 @@ public class User {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public BigDecimal getSaldo() {
