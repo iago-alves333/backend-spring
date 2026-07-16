@@ -1,0 +1,50 @@
+### 1. Salvar um novo jogo no banco de dados
+POST http://localhost:8080/jogos
+Content-Type: application/json
+
+{
+  "nome": "Hollow Knight",
+  "preco": 49.99,
+  "tipo": "Ação/Metroidvania",
+  "urlImagem": "https://exemplo.com/hollow-knight.jpg"
+}
+
+### 2. Salvar Phasmophobia
+POST http://localhost:8080/jogos
+Content-Type: application/json
+
+{
+  "nome": "Phasmophobia",
+  "preco": 49.99,
+  "tipo": "Terror",
+  "urlImagem": "https://exemplo.com/phasmophobia.jpg"
+}
+
+### 3. Listar todos os jogos cadastrados
+GET http://localhost:8080/jogos
+
+### 4. Buscar jogo pelo ID 1
+GET http://localhost:8080/jogos/1
+
+### 5. Atualizar um jogo existente (ID 1)
+PUT http://localhost:8080/jogos/1
+Content-Type: application/json
+
+{
+  "nome": "Hollow Knight: Silksong",
+  "preco": 89.99,
+  "tipo": "Ação/Metroidvania",
+  "urlImagem": "https://exemplo.com/silksong.jpg"
+}
+
+### 6. Realizar uma nova compra (A transação!)
+POST http://localhost:8080/compras
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "jogoId": 2
+}
+
+### 7. Deletar jogo pelo ID 2
+DELETE http://localhost:8080/jogos/2
