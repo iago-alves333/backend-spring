@@ -2,6 +2,10 @@ package br.ufpb.dcx.iago.lojadejogos.backend.dto;
 
 import java.math.BigDecimal;
 
+/**
+ * DTO utilizado para devolver os dados do usuário ao cliente de forma segura.
+ * Oculta informações sensíveis como senhas, garantindo a segurança na exposição da API.
+ */
 public class UserResponseDTO {
     private Long idUser;
     private String nome;

@@ -5,11 +5,14 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-// TODO: Adicionar anotação @Entity
+/**
+ * Entidade que representa uma transação de compra na loja.
+ * É utilizada para registrar o histórico de aquisições de jogos pelos usuários
+ * no banco de dados, vinculando qual jogo foi comprado por quem, a data e o valor pago.
+ */
 @Entity
 public class Compra {
-    // TODO: Adicionar @Id e @GeneratedValue para o identificador
-    // TODO: Adicionar relacionamentos (ex: @ManyToOne para Usuario e Jogo) e outros atributos (data, valor, etc.)
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

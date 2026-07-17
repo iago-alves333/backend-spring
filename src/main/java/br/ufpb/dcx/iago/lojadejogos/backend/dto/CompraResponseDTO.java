@@ -3,6 +3,10 @@ package br.ufpb.dcx.iago.lojadejogos.backend.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * DTO de saída que representa o recibo de uma compra efetuada com sucesso.
+ * Transmite as informações consolidadas da transação (nome do usuário, jogo, valor pago, data) para o cliente.
+ */
 public class CompraResponseDTO {
 
     private Long idCompra;

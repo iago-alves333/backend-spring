@@ -6,6 +6,10 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
+/**
+ * DTO responsável por receber os dados do cliente para a criação ou atualização de um jogo.
+ * Assegura a validação inicial (ex: campos obrigatórios) antes dos dados chegarem ao Service.
+ */
 public class JogoRequestDTO {
     // TODO: Adicionar atributos necessários para criar ou atualizar um Jogo a partir do JSON recebido
     // TODO: Adicionar getters e setters

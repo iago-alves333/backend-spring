@@ -13,10 +13,18 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Interceptador global de exceções da aplicação.
+ * Captura as exceções lançadas pelas camadas de Service ou Controller
+ * e as transforma em respostas HTTP padronizadas com a estrutura de ErrorResponseDTO.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // ResourceNotFoundException → retorna HTTP 404
+    /**
+     * Intercepta ResourceNotFoundException (exceção genérica para itens não encontrados).
+     * @return 404 Not Found acompanhado de um ErrorResponseDTO.
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handleResourceNotFoundException(ResourceNotFoundException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
@@ -28,7 +36,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    // MethodArgumentNotValidException → retorna HTTP 400 + lista de campos
+    /**
+     * Intercepta erros de validação de argumentos (@Valid) nos DTOs.
+     * @return 400 Bad Request com uma lista de campos que falharam na validação.
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
         List<String> erros = new ArrayList<>();
@@ -47,7 +58,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // EmailJaCadastradoException → retorna HTTP 409 com mensagem específica
+    /**
+     * Intercepta EmailJaCadastradoException durante a criação de usuários.
+     * @return 409 Conflict, indicando que o e-mail não pode ser reutilizado.
+     */
     @ExceptionHandler(EmailJaCadastradoException.class)
     public ResponseEntity<ErrorResponseDTO> handleEmailJaCadastrado(EmailJaCadastradoException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
@@ -59,7 +73,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
-    // 3. DataIntegrityViolationException → retorna HTTP 409 (Conflict)
+    /**
+     * Intercepta problemas de integridade de dados lançados pelo banco (ex: chaves duplicadas).
+     * @return 409 Conflict alertando sobre o registro duplicado ou inconsistente.
+     */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponseDTO> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
@@ -71,7 +88,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
-    // Tratamento para Entidades Não encontradas + retorna http 404
+    /**
+     * Intercepta exceções específicas de entidades não encontradas.
+     * @return 404 Not Found caso o usuário ou jogo não exista.
+     */
     @ExceptionHandler({UsuarioNaoEncontradoException.class, JogoNaoEncontradoException.class})
     public ResponseEntity<ErrorResponseDTO> handleEntidadeNaoEncontrada(Exception ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
@@ -82,7 +102,10 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
-    //Lançamento de Exeption caso o saldo seja insuficiente + retorna HTTP 400
+    /**
+     * Intercepta a tentativa de compra com saldo menor que o necessário.
+     * @return 400 Bad Request, informando o saldo insuficiente.
+     */
     @ExceptionHandler(SaldoInsuficienteException.class)
     public ResponseEntity<ErrorResponseDTO> handleSaldoInsuficienteException(SaldoInsuficienteException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
@@ -94,7 +117,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    //Tratamento para jogo já adquirido + retorna HTTP 409 (Conflict)
+    /**
+     * Intercepta a tentativa de compra de um jogo que já está na biblioteca do usuário.
+     * @return 409 Conflict para evitar duplicidade de aquisição.
+     */
     @ExceptionHandler(JogoJaAdquiridoException.class)
     public ResponseEntity<ErrorResponseDTO> handleJogoJaAdquiridoException(JogoJaAdquiridoException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
@@ -106,7 +132,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
-    // Tratamento para preço inválido + retorna HTTP 422 (Unprocessable Entity)
+    /**
+     * Intercepta a criação/atualização de um jogo com preço numérico inválido (ex: negativo).
+     * @return 422 Unprocessable Entity devido a violação de regra de negócio (preço).
+     */
     @ExceptionHandler(PrecoInvalidoException.class)
     public ResponseEntity<ErrorResponseDTO> handlePrecoInvalidoException(PrecoInvalidoException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
@@ -118,7 +147,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(error);
     }
 
-    // Exception genérica → retorna HTTP 500 (Catch-all)
+    /**
+     * Intercepta quaisquer exceções não mapeadas para prevenir exposição de dados sensíveis.
+     * @return 500 Internal Server Error sinalizando erro não esperado.
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(

@@ -38,14 +38,12 @@ public class AuthController {
     }
 
     /**
-     * Endpoint de login.
-     * Recebe email + senha, valida contra o banco, e retorna um token JWT.
+     * Endpoint para autenticação de usuários na plataforma.
+     * Rota: POST /api/v1/auth/login
+     * Recebe email e senha, valida contra o banco, e retorna um token JWT.
      *
-     * Fluxo:
-     * 1. Busca o usuário pelo email
-     * 2. Compara a senha enviada com o hash BCrypt armazenado no banco
-     * 3. Se válido, gera e retorna o token JWT com a role do usuário
-     * 4. Se inválido, retorna 401 Unauthorized
+     * @param dto Corpo da requisição (@RequestBody) contendo as credenciais de login.
+     * @return 200 OK com LoginResponseDTO contendo o token JWT se as credenciais forem válidas, ou 401 Unauthorized em caso de falha.
      */
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO dto) {

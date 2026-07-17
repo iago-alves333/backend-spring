@@ -13,6 +13,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Serviço responsável por gerenciar o catálogo de jogos da loja.
+ * Realiza as validações de negócio, como garantir que o preço não seja negativo.
+ */
 @Service
 public class JogoService {
 
@@ -31,6 +35,14 @@ public class JogoService {
         return novaLista;
     }
 
+    /**
+     * Cadastra um novo jogo no catálogo.
+     * Valida previamente se o preço estipulado é válido (maior ou igual a zero).
+     *
+     * @param dto Dados do jogo a ser criado.
+     * @return JogoResponseDTO contendo as informações do jogo salvo.
+     * @throws PrecoInvalidoException Se o preço do jogo for negativo.
+     */
     public JogoResponseDTO salvar(JogoRequestDTO dto) {
         // Regra de negócio: preço não pode ser negativo.
         // O @DecimalMin no DTO já valida o formato, mas aqui é a regra de negócio no Service.
@@ -48,6 +60,13 @@ public class JogoService {
         return converterParaDTO(jogoSalvo);
     }
 
+    /**
+     * Busca os detalhes de um jogo específico pelo seu ID.
+     *
+     * @param id Identificador do jogo.
+     * @return JogoResponseDTO com os detalhes do jogo.
+     * @throws ResourceNotFoundException Se o jogo não existir no catálogo.
+     */
     public JogoResponseDTO buscarPorId(Long id) throws ResourceNotFoundException {
         // Correção 1.2: Uso correto do orElseThrow com lambda
         Jogo j = jogoRepository.findById(id)
@@ -64,6 +83,16 @@ public class JogoService {
         jogoRepository.deleteById(id);
     }
 
+    /**
+     * Atualiza as informações de um jogo existente no catálogo.
+     * Aplica novamente as regras de validação de preço antes da atualização.
+     *
+     * @param id Identificador do jogo a ser atualizado.
+     * @param dto Novos dados do jogo.
+     * @return JogoResponseDTO atualizado.
+     * @throws ResourceNotFoundException Se o jogo não existir.
+     * @throws PrecoInvalidoException Se o novo preço for negativo.
+     */
     public JogoResponseDTO atualizar(Long id, JogoRequestDTO dto) throws ResourceNotFoundException {
         validarPreco(dto.getPreco());
 

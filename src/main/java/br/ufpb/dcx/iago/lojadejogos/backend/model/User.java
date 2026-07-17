@@ -5,12 +5,15 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.List;
 
-// TODO: Adicionar anotação @Entity
+/**
+ * Entidade que representa um usuário no sistema.
+ * Armazena credenciais de acesso, saldo da carteira digital e a coleção de
+ * jogos adquiridos pelo usuário.
+ */
 @Entity
 @Table(name = "usuarios")
 public class User {
-    // TODO: Adicionar @Id e @GeneratedValue para o identificador
-    // TODO: Adicionar demais atributos do usuário (nome, email, senha, etc.)
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

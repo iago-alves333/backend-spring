@@ -14,6 +14,11 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Serviço responsável pela lógica de negócio envolvendo usuários.
+ * Gerencia operações de CRUD, validações de integridade e regras específicas,
+ * como garantir a unicidade do e-mail.
+ */
 @Service
 public class UserService {
 
@@ -26,6 +31,15 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Cadastra um novo usuário no sistema.
+     * Valida se o email já está cadastrado antes de prosseguir.
+     * Por padrão, define o nível de acesso (admin) como falso e criptografa a senha.
+     *
+     * @param dto Os dados do usuário a ser cadastrado.
+     * @return UserResponseDTO com os dados salvos, omitindo dados sensíveis como senha.
+     * @throws EmailJaCadastradoException Se o email já existir na base de dados.
+     */
     public UserResponseDTO salvar(UserRequestDTO dto) {
         // Verifica se já existe um usuário com esse email ANTES de tentar salvar.
         // Sem essa verificação, o erro só apareceria como uma exceção genérica do banco
@@ -54,12 +68,27 @@ public class UserService {
         }
         return list;
     }
+    /**
+     * Busca os dados de um usuário através do ID fornecido.
+     *
+     * @param id Identificador do usuário.
+     * @return UserResponseDTO contendo as informações do usuário.
+     * @throws UsuarioNaoEncontradoException Caso o ID não corresponda a nenhum usuário existente.
+     */
     public UserResponseDTO buscarPorId(Long id) {
         User usuario = userRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado"));
         return converterUserParaDTO(usuario);
     }
 
+    /**
+     * Atualiza os dados básicos (nome e e-mail) de um usuário existente.
+     * 
+     * @param id Identificador do usuário a ser atualizado.
+     * @param dto Novos dados para o usuário.
+     * @return UserResponseDTO com os dados atualizados.
+     * @throws UsuarioNaoEncontradoException Se o usuário não existir.
+     */
     public UserResponseDTO atualizar(Long id, UserRequestDTO dto) {
         User usuario = userRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado"));
@@ -70,11 +99,24 @@ public class UserService {
         return converterUserParaDTO(userAtualizado);
     }
 
+    /**
+     * Remove um usuário permanentemente do sistema pelo seu ID.
+     *
+     * @param id Identificador do usuário a ser removido.
+     * @throws UsuarioNaoEncontradoException Se o usuário não existir.
+     */
     public void deletarPorId(Long id){
         User usuario = userRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado"));
         userRepository.delete(usuario);
     }
+    /**
+     * Retorna a biblioteca de jogos adquiridos por um usuário específico.
+     *
+     * @param id Identificador do usuário.
+     * @return Uma lista de JogoResponseDTO contendo os detalhes dos jogos do usuário.
+     * @throws UsuarioNaoEncontradoException Se o usuário não for encontrado.
+     */
     public List<JogoResponseDTO> listarJogosDOUsuario(Long id){
         User usuario = userRepository.findById(id)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não foi encontrado"));

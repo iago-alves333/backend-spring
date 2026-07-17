@@ -3,11 +3,14 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 
-// TODO: Adicionar anotação @Entity para mapear a classe como tabela no banco de dados
+/**
+ * Entidade que representa um jogo disponível no catálogo da loja.
+ * Contém informações essenciais para a vitrine, como preço, tipo e url da imagem,
+ * e é referenciado em compras e na biblioteca dos usuários.
+ */
 @Entity
 public class Jogo {
-    // TODO: Adicionar @Id e @GeneratedValue para o identificador (chave primária)
-    // TODO: Adicionar demais atributos do jogo (nome, preco, categoria, etc.)
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -3,6 +3,10 @@ package br.ufpb.dcx.iago.lojadejogos.backend.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * DTO padronizado para representar mensagens de erro da API.
+ * Contém o status HTTP, mensagem, data e hora, e opcionalmente uma lista de erros de validação.
+ */
 public class ErrorResponseDTO {
     private int status;
     private String mensagem;

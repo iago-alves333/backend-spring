@@ -18,6 +18,10 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Serviço responsável pela lógica de transações de compra de jogos.
+ * Agrupa todas as regras de negócio complexas como validação de saldo e verificação de aquisições duplicadas.
+ */
 @Service
 public class CompraService {
 
@@ -34,6 +38,21 @@ public class CompraService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Efetiva a compra de um jogo para um usuário.
+     * Antes de concluir a transação, aplica as seguintes regras de negócio em ordem:
+     * 1. Verifica se o usuário e o jogo existem;
+     * 2. Valida se o usuário já não possui o jogo na biblioteca;
+     * 3. Checa se o usuário possui saldo suficiente na carteira.
+     * Em caso de sucesso, o saldo é subtraído, o jogo é adicionado à biblioteca do usuário e o histórico de compra é salvo.
+     *
+     * @param dto Dados contendo o ID do usuário e o ID do jogo a ser comprado.
+     * @return CompraResponseDTO com os detalhes da transação confirmada.
+     * @throws UsuarioNaoEncontradoException Se o usuário não existir.
+     * @throws JogoNaoEncontradoException Se o jogo não existir.
+     * @throws JogoJaAdquiridoException Se o jogo já estiver na lista de jogos do usuário.
+     * @throws SaldoInsuficienteException Se o valor do jogo for superior ao saldo do usuário.
+     */
     @Transactional
     public CompraResponseDTO realizarCompra(CompraRequestDTO dto) {
 

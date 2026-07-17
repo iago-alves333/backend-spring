@@ -2,6 +2,10 @@ package br.ufpb.dcx.iago.lojadejogos.backend.dto;
 
 import java.math.BigDecimal;
 
+/**
+ * DTO utilizado para enviar os detalhes de um jogo para o cliente.
+ * Expõe as informações formatadas adequadamente para as interfaces de vitrine e catálogo.
+ */
 public class JogoResponseDTO {
     // TODO: Adicionar atributos que serão enviados de volta para o cliente (ex: JavaFX)
     // TODO: Adicionar getters e setters
