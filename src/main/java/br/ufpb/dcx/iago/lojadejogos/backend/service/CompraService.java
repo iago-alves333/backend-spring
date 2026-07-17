@@ -78,7 +78,7 @@ public class CompraService {
         if (!userRepository.existsById(userId)) {
             throw new UsuarioNaoEncontradoException("Usuário não encontrado");
         }
-        return compraRepository.findById(userId).stream()
+        return compraRepository.findByUserId(userId).stream()
                 .map(this::converterParaDTO)
                 .toList();
     }
