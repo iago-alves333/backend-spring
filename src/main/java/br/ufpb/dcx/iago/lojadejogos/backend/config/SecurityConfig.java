@@ -1,7 +1,6 @@
 package br.ufpb.dcx.iago.lojadejogos.backend.config;
 
 import br.ufpb.dcx.iago.lojadejogos.backend.security.JwtAuthenticationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -25,8 +24,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -47,16 +49,16 @@ public class SecurityConfig {
                 // Regras de autorização por rota
                 .authorizeHttpRequests(auth -> auth
                         // --- ROTAS PÚBLICAS (qualquer pessoa acessa, sem token) ---
-                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()  // Registro de novo usuário
-                        .requestMatchers(HttpMethod.GET, "/jogos").permitAll()       // Listar jogos (vitrine)
-                        .requestMatchers(HttpMethod.GET, "/jogos/**").permitAll()    // Ver detalhes de um jogo
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/usuarios").permitAll()     // Registro
+                        .requestMatchers(HttpMethod.GET, "/api/v1/jogos").permitAll()          // Vitrine
+                        .requestMatchers(HttpMethod.GET, "/api/v1/jogos/**").permitAll()       // Detalhe
 
                         // --- ROTAS DE ADMIN (só quem tem ROLE_ADMIN) ---
-                        .requestMatchers(HttpMethod.POST, "/jogos").hasRole("ADMIN")    // Criar jogo
-                        .requestMatchers(HttpMethod.PUT, "/jogos/**").hasRole("ADMIN")  // Atualizar jogo
-                        .requestMatchers(HttpMethod.DELETE, "/jogos/**").hasRole("ADMIN") // Deletar jogo
-                        .requestMatchers(HttpMethod.GET, "/usuarios").hasRole("ADMIN")  // Listar todos os usuários
+                        .requestMatchers(HttpMethod.POST, "/api/v1/jogos").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/jogos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/jogos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/usuarios").hasRole("ADMIN")
 
                         // --- TODAS AS OUTRAS ROTAS exigem estar autenticado ---
                         .anyRequest().authenticated()

@@ -6,7 +6,6 @@ import br.ufpb.dcx.iago.lojadejogos.backend.exception.PrecoInvalidoException;
 import br.ufpb.dcx.iago.lojadejogos.backend.exception.ResourceNotFoundException;
 import br.ufpb.dcx.iago.lojadejogos.backend.model.Jogo;
 import br.ufpb.dcx.iago.lojadejogos.backend.repository.JogoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,8 +16,12 @@ import java.util.List;
 @Service
 public class JogoService {
 
-    @Autowired
-    private JogoRepository jogoRepository;
+
+    private final JogoRepository jogoRepository;
+
+    public JogoService(JogoRepository jogoRepository) {
+        this.jogoRepository = jogoRepository;
+    }
 
     public List<JogoResponseDTO> listarTodos() {
         List<JogoResponseDTO> novaLista = new ArrayList<>();
@@ -38,6 +41,7 @@ public class JogoService {
         jogo.setPreco(dto.getPreco());
         jogo.setTipo(dto.getTipo());
         jogo.setUrlImagem(dto.getUrlImagem());
+        jogo.setDescricao(dto.getDescricao());
 
         Jogo jogoSalvo = jogoRepository.save(jogo);
 
@@ -70,6 +74,7 @@ public class JogoService {
         jogoExistente.setPreco(dto.getPreco());
         jogoExistente.setTipo(dto.getTipo());
         jogoExistente.setUrlImagem(dto.getUrlImagem());
+        jogoExistente.setDescricao(dto.getDescricao());
 
         Jogo jogoAtualizado = jogoRepository.save(jogoExistente);
 
@@ -94,6 +99,7 @@ public class JogoService {
         dto.setPreco(jogo.getPreco());
         dto.setTipo(jogo.getTipo());
         dto.setUrlImagem(jogo.getUrlImagem());
+        dto.setDescricao(jogo.getDescricao());
         return dto;
     }
 }

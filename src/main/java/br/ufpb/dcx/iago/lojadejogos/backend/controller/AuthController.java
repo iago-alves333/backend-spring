@@ -6,7 +6,6 @@ import br.ufpb.dcx.iago.lojadejogos.backend.model.User;
 import br.ufpb.dcx.iago.lojadejogos.backend.repository.UserRepository;
 import br.ufpb.dcx.iago.lojadejogos.backend.security.JwtService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,17 +19,23 @@ import org.springframework.web.bind.annotation.RestController;
  * Rota pública: qualquer pessoa pode fazer POST /auth/login para obter um token JWT.
  */
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private JwtService jwtService;
+
+    private final PasswordEncoder passwordEncoder;
+
+
+    private final JwtService jwtService;
+
+    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+    }
 
     /**
      * Endpoint de login.
