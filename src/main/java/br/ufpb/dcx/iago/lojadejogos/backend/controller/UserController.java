@@ -2,6 +2,7 @@ package br.ufpb.dcx.iago.lojadejogos.backend.controller;
 
 import br.ufpb.dcx.iago.lojadejogos.backend.dto.UserRequestDTO;
 import br.ufpb.dcx.iago.lojadejogos.backend.dto.UserResponseDTO;
+import br.ufpb.dcx.iago.lojadejogos.backend.dto.JogoResponseDTO;
 import br.ufpb.dcx.iago.lojadejogos.backend.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus; // Não esqueça deste import
@@ -50,4 +51,9 @@ public class UserController {
         return ResponseEntity.noContent().build(); // 204 NO CONTENT
     }
 
+    @GetMapping("/{id}/jogos")
+    public ResponseEntity<List<JogoResponseDTO>> listarJogosDoUsuario(@PathVariable Long id) {
+        List<JogoResponseDTO> jogos = userService.listarJogosDOUsuario(id);
+        return ResponseEntity.ok(jogos);
+    }
 }
