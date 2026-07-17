@@ -1,8 +1,5 @@
 package br.ufpb.dcx.iago.lojadejogos.backend.model;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 
@@ -20,10 +17,19 @@ public class Jogo {
     private String tipo;
     private String urlImagem;
 
+    @Column(columnDefinition = "TEXT")
+    private String descricao;
+
 
     public Jogo() {
     }
 
+    public String getDescricao() {
+        return descricao;
+    }
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
 
     public Long getId() {
         return id;

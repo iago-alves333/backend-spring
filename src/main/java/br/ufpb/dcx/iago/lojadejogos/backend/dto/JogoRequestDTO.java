@@ -17,6 +17,8 @@ public class JogoRequestDTO {
     private String urlImagem;
     @DecimalMin(value = "0.0", message = "Não pode ser negativo")
     private BigDecimal preco;
+    @NotBlank
+    private String descricao;
 
     public String getNome() {
         return nome;
@@ -24,6 +26,15 @@ public class JogoRequestDTO {
     public void setNome(String nome) {
         this.nome = nome;
     }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
     public String getTipo() {
         return tipo;
     }

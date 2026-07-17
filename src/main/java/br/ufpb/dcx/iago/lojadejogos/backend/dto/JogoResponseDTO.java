@@ -10,6 +10,7 @@ public class JogoResponseDTO {
     private BigDecimal preco;
     private String urlImagem;
     private Long id;
+    private String descricao;
 
     public String getNome() {
         return nome;
@@ -49,5 +50,11 @@ public class JogoResponseDTO {
 
     public void setId(long id) {
         this.id = id;
+    }
+    public String getDescricao() {
+        return descricao;
+    }
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
 }
