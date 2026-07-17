@@ -2,7 +2,9 @@ package br.ufpb.dcx.iago.lojadejogos.backend.service;
 
 import br.ufpb.dcx.iago.lojadejogos.backend.dto.CompraRequestDTO;
 import br.ufpb.dcx.iago.lojadejogos.backend.dto.CompraResponseDTO;
+import br.ufpb.dcx.iago.lojadejogos.backend.exception.JogoJaAdquiridoException;
 import br.ufpb.dcx.iago.lojadejogos.backend.exception.JogoNaoEncontradoException;
+import br.ufpb.dcx.iago.lojadejogos.backend.exception.SaldoInsuficienteException;
 import br.ufpb.dcx.iago.lojadejogos.backend.exception.UsuarioNaoEncontradoException;
 import br.ufpb.dcx.iago.lojadejogos.backend.model.Compra;
 import br.ufpb.dcx.iago.lojadejogos.backend.model.Jogo;
@@ -10,6 +12,7 @@ import br.ufpb.dcx.iago.lojadejogos.backend.model.User;
 import br.ufpb.dcx.iago.lojadejogos.backend.repository.CompraRepository;
 import br.ufpb.dcx.iago.lojadejogos.backend.repository.JogoRepository;
 import br.ufpb.dcx.iago.lojadejogos.backend.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +30,7 @@ public class CompraService {
     @Autowired
     private UserRepository userRepository;
 
+    @Transactional
     public CompraResponseDTO realizarCompra(CompraRequestDTO dto) {
 
         User usuario = userRepository.findById(dto.getUserId())
@@ -34,12 +38,26 @@ public class CompraService {
 
         Jogo jogo = jogoRepository.findById(dto.getJogoId())
                 .orElseThrow(() -> new JogoNaoEncontradoException("Jogo não encontrado!"));
+        boolean jaPossuiJogo = usuario.getJogos().stream()
+                .anyMatch(j -> j.getId().equals(jogo.getId()));
+        if (jaPossuiJogo) {
+            throw new JogoJaAdquiridoException("Você já possui este jogo!");        }
+
+        if(usuario.getSaldo().compareTo(jogo.getPreco()) < 0){
+            throw new SaldoInsuficienteException("Saldo insufiencete para comprar esse jogo");
+        }
+
+        usuario.setSaldo(usuario.getSaldo().subtract(jogo.getPreco()));
+        usuario.getJogos().add(jogo);
+        userRepository.save(usuario);
 
         Compra novaCompra = new Compra();
         novaCompra.setUser(usuario);
         novaCompra.setJogo(jogo);
         novaCompra.setDataCompra(LocalDateTime.now());
         novaCompra.setValorPago(jogo.getPreco());
+
+
 
         Compra compraSalva = compraRepository.save(novaCompra);
 
