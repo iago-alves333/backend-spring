@@ -16,7 +16,7 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 1. ResourceNotFoundException → retorna HTTP 404
+    // ResourceNotFoundException → retorna HTTP 404
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handleResourceNotFoundException(ResourceNotFoundException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    // 2. MethodArgumentNotValidException → retorna HTTP 400 + lista de campos
+    // MethodArgumentNotValidException → retorna HTTP 400 + lista de campos
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
         List<String> erros = new ArrayList<>();
@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // 2.5 EmailJaCadastradoException → retorna HTTP 409 com mensagem específica
+    // EmailJaCadastradoException → retorna HTTP 409 com mensagem específica
     @ExceptionHandler(EmailJaCadastradoException.class)
     public ResponseEntity<ErrorResponseDTO> handleEmailJaCadastrado(EmailJaCadastradoException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
@@ -71,7 +71,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
-    //3.5 Tratamento para Entidades Não encontradas + retorna http 404
+    // Tratamento para Entidades Não encontradas + retorna http 404
     @ExceptionHandler({UsuarioNaoEncontradoException.class, JogoNaoEncontradoException.class})
     public ResponseEntity<ErrorResponseDTO> handleEntidadeNaoEncontrada(Exception ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
@@ -82,8 +82,43 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
+    //Lançamento de Exeption caso o saldo seja insuficiente + retorna HTTP 400
+    @ExceptionHandler(SaldoInsuficienteException.class)
+    public ResponseEntity<ErrorResponseDTO> handleSaldoInsuficienteException(SaldoInsuficienteException ex) {
+        ErrorResponseDTO error = new ErrorResponseDTO(
+            HttpStatus.BAD_REQUEST.value(),
+            ex.getMessage(),
+            LocalDateTime.now(),
+            null
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
 
-    // 4. Exception genérica → retorna HTTP 500 (Catch-all)
+    //Tratamento para jogo já adquirido + retorna HTTP 409 (Conflict)
+    @ExceptionHandler(JogoJaAdquiridoException.class)
+    public ResponseEntity<ErrorResponseDTO> handleJogoJaAdquiridoException(JogoJaAdquiridoException ex) {
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                HttpStatus.CONFLICT.value(),
+                ex.getMessage(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    // Tratamento para preço inválido + retorna HTTP 422 (Unprocessable Entity)
+    @ExceptionHandler(PrecoInvalidoException.class)
+    public ResponseEntity<ErrorResponseDTO> handlePrecoInvalidoException(PrecoInvalidoException ex) {
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                ex.getMessage(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(error);
+    }
+
+    // Exception genérica → retorna HTTP 500 (Catch-all)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(

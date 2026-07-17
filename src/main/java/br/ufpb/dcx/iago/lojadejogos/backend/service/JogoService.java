@@ -2,11 +2,14 @@ package br.ufpb.dcx.iago.lojadejogos.backend.service;
 
 import br.ufpb.dcx.iago.lojadejogos.backend.dto.JogoRequestDTO;
 import br.ufpb.dcx.iago.lojadejogos.backend.dto.JogoResponseDTO;
+import br.ufpb.dcx.iago.lojadejogos.backend.exception.PrecoInvalidoException;
 import br.ufpb.dcx.iago.lojadejogos.backend.exception.ResourceNotFoundException;
 import br.ufpb.dcx.iago.lojadejogos.backend.model.Jogo;
 import br.ufpb.dcx.iago.lojadejogos.backend.repository.JogoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +29,10 @@ public class JogoService {
     }
 
     public JogoResponseDTO salvar(JogoRequestDTO dto) {
+        // Regra de negócio: preço não pode ser negativo.
+        // O @DecimalMin no DTO já valida o formato, mas aqui é a regra de negócio no Service.
+        validarPreco(dto.getPreco());
+
         Jogo jogo = new Jogo();
         jogo.setNome(dto.getNome());
         jogo.setPreco(dto.getPreco());
@@ -54,7 +61,8 @@ public class JogoService {
     }
 
     public JogoResponseDTO atualizar(Long id, JogoRequestDTO dto) throws ResourceNotFoundException {
-        // Correção 1.3: Padronizado usando orElseThrow, código mais limpo
+        validarPreco(dto.getPreco());
+
         Jogo jogoExistente = jogoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException());
 
@@ -66,6 +74,17 @@ public class JogoService {
         Jogo jogoAtualizado = jogoRepository.save(jogoExistente);
 
         return converterParaDTO(jogoAtualizado);
+    }
+
+    /**
+     * Regra de negócio: o preço do jogo não pode ser negativo.
+     * Se quiser permitir jogos gratuitos, troque o < 0 por < 0 (mantém) e permita 0.
+     * Se NÃO quiser jogos gratuitos, troque para <= 0.
+     */
+    private void validarPreco(BigDecimal preco) {
+        if (preco != null && preco.compareTo(BigDecimal.ZERO) < 0) {
+            throw new PrecoInvalidoException("O preço do jogo não pode ser negativo.");
+        }
     }
 
     private JogoResponseDTO converterParaDTO(Jogo jogo) {
