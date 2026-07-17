@@ -71,6 +71,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
+    //3.5 Tratamento para Entidades Não encontradas + retorna http 404
+    @ExceptionHandler({UsuarioNaoEncontradoException.class, JogoNaoEncontradoException.class})
+    public ResponseEntity<ErrorResponseDTO> handleEntidadeNaoEncontrada(Exception ex) {
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
     // 4. Exception genérica → retorna HTTP 500 (Catch-all)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception ex) {

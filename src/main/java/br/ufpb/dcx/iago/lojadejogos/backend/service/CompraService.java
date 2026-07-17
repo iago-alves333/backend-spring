@@ -2,6 +2,8 @@ package br.ufpb.dcx.iago.lojadejogos.backend.service;
 
 import br.ufpb.dcx.iago.lojadejogos.backend.dto.CompraRequestDTO;
 import br.ufpb.dcx.iago.lojadejogos.backend.dto.CompraResponseDTO;
+import br.ufpb.dcx.iago.lojadejogos.backend.exception.JogoNaoEncontradoException;
+import br.ufpb.dcx.iago.lojadejogos.backend.exception.UsuarioNaoEncontradoException;
 import br.ufpb.dcx.iago.lojadejogos.backend.model.Compra;
 import br.ufpb.dcx.iago.lojadejogos.backend.model.Jogo;
 import br.ufpb.dcx.iago.lojadejogos.backend.model.User;
@@ -28,10 +30,10 @@ public class CompraService {
     public CompraResponseDTO realizarCompra(CompraRequestDTO dto) {
 
         User usuario = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
+                .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado!"));
 
         Jogo jogo = jogoRepository.findById(dto.getJogoId())
-                .orElseThrow(() -> new RuntimeException("Jogo não encontrado!"));
+                .orElseThrow(() -> new JogoNaoEncontradoException("Jogo não encontrado!"));
 
         Compra novaCompra = new Compra();
         novaCompra.setUser(usuario);

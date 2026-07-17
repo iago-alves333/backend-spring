@@ -18,7 +18,7 @@ public class Compra {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "jodo_id")
+    @JoinColumn(name = "jogo_id")
     private Jogo jogo;
 
     private LocalDateTime dataCompra;
