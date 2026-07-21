@@ -28,7 +28,6 @@ public class IgdbIntegrationService {
     }
 
     private String getTwitchAccessToken() {
-        // CORREÇÃO: Passando a URL e parâmetros em um único método .uri()
         TwitchTokenResponse response = webClient.post()
                 .uri("https://id.twitch.tv/oauth2/token?client_id={id}&client_secret={secret}&grant_type=client_credentials",
                         clientId, clientSecret)
@@ -70,7 +69,6 @@ public class IgdbIntegrationService {
                 imageUrl = imageUrl.replace("t_thumb", "t_cover_big");
             }
 
-            // CORREÇÃO: Se você fez IgdbGame como "class", troque .name() para .getName()
             return new JogoBuscaExternaDTO(game.name(), imageUrl);
         }).collect(Collectors.toList());
     }

@@ -1,11 +1,9 @@
 ### =========================================================================
 ### Variáveis Globais para o teste
-### (O IntelliJ preenche automaticamente o token nas rotas se você
-### usar a funcionalidade de variáveis, mas aqui deixamos explícito)
 ### =========================================================================
 @host = http://localhost:8080/api/v1
-# Substitua o valor abaixo pelo token recebido no passo 1.3 após o login
-@token = cole_o_seu_token_aqui
+### A variável @token foi removida daqui porque agora a IDE vai criá-la
+### automaticamente após o login na rota 1.3.
 
 ### =========================================================================
 ### 1. USUÁRIOS E AUTENTICAÇÃO
@@ -21,7 +19,7 @@ Content-Type: application/json
 {
   "nome": "Iago Alves",
   "email": "iago@teste.com",
-  "senha": "123",
+  "senha": "1234567",
   "saldo": 200.00
 }
 
@@ -32,36 +30,43 @@ Content-Type: application/json
 {
   "nome": "Iago Clone",
   "email": "iago@teste.com",
-  "senha": "123",
+  "senha": "1234567",
   "saldo": 50.00
 }
 
-### 1.3 Login (Público - Copie o "token" da resposta e cole na variável @token acima!)
+### 1.3 Login (Público - Captura automática do token!)
 POST {{host}}/auth/login
 Content-Type: application/json
 
 {
   "email": "iago@teste.com",
-  "senha": "123"
+  "senha": "1234567"
 }
+
+> {%
+    // Isso pega o token do JSON de resposta (ex: {"token": "ey..."})
+    // e salva na variável global auth_token invisivelmente.
+    // Se a sua API retorna o token com outro nome de campo, mude o "response.body.token"
+    client.global.set("auth_token", response.body.token);
+%}
 
 ### 1.4 Listar todos os usuários (Requer ADMIN)
 GET {{host}}/usuarios
-Authorization: Bearer {{token}}
+Authorization: Bearer {{auth_token}}
 
 ### 1.5 Buscar usuário específico (Requer Autenticação)
 GET {{host}}/usuarios/1
-Authorization: Bearer {{token}}
+Authorization: Bearer {{auth_token}}
 
 ### 1.6 Atualizar dados do usuário (Requer Autenticação)
 PUT {{host}}/usuarios/1
-Authorization: Bearer {{token}}
+Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
 {
   "nome": "Iago Alves Silva",
   "email": "iago.silva@teste.com",
-  "senha": "123",
+  "senha": "123456",
   "saldo": 200.00
 }
 
@@ -75,7 +80,7 @@ GET {{host}}/jogos
 
 ### 2.2 Salvar um novo jogo (Requer ADMIN)
 POST {{host}}/jogos
-Authorization: Bearer {{token}}
+Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
 {
@@ -88,7 +93,7 @@ Content-Type: application/json
 
 ### 2.3 Salvar outro jogo (Requer ADMIN)
 POST {{host}}/jogos
-Authorization: Bearer {{token}}
+Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
 {
@@ -101,7 +106,7 @@ Content-Type: application/json
 
 ### 2.4 Tentar salvar um jogo com preço inválido (Requer ADMIN - Deve retornar 422 Unprocessable Entity)
 POST {{host}}/jogos
-Authorization: Bearer {{token}}
+Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
 {
@@ -117,7 +122,7 @@ GET {{host}}/jogos/1
 
 ### 2.6 Atualizar um jogo existente (Requer ADMIN)
 PUT {{host}}/jogos/1
-Authorization: Bearer {{token}}
+Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
 {
@@ -135,7 +140,7 @@ Content-Type: application/json
 
 ### 3.1 Realizar uma nova compra (Usuário 1 compra Jogo 2 - Requer Autenticação)
 POST {{host}}/compras
-Authorization: Bearer {{token}}
+Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
 {
@@ -145,7 +150,7 @@ Content-Type: application/json
 
 ### 3.2 Tentar comprar o MESMO jogo (Deve retornar 409 Conflict)
 POST {{host}}/compras
-Authorization: Bearer {{token}}
+Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
 {
@@ -154,10 +159,8 @@ Content-Type: application/json
 }
 
 ### 3.3 Tentar comprar um jogo muito caro sem saldo (Deve retornar 400 Bad Request)
-### Assumindo que você comprou o jogo de R$ 29.99, sobraram R$ 170.01 do saldo inicial de 200.00
-### Se tentarmos atualizar o preço do jogo 1 para 300, a compra vai falhar por falta de saldo.
 PUT {{host}}/jogos/1
-Authorization: Bearer {{token}}
+Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
 {
@@ -170,7 +173,7 @@ Content-Type: application/json
 
 ### 3.4 Tentativa de compra sem saldo (Deve dar Erro 400 - Saldo Insuficiente)
 POST {{host}}/compras
-Authorization: Bearer {{token}}
+Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
 {
@@ -185,20 +188,20 @@ Content-Type: application/json
 
 ### 4.1 Listar jogos do usuário 1 (Biblioteca - Requer Autenticação)
 GET {{host}}/usuarios/1/jogos
-Authorization: Bearer {{token}}
+Authorization: Bearer {{auth_token}}
 
 ### 4.2 Listar o histórico de compras de toda a loja (Requer ADMIN)
 GET {{host}}/compras
-Authorization: Bearer {{token}}
+Authorization: Bearer {{auth_token}}
 
 ### 4.3 Listar compras específicas do usuário 1 (Requer Autenticação)
 GET {{host}}/compras/usuario/1
-Authorization: Bearer {{token}}
+Authorization: Bearer {{auth_token}}
 
 ### 4.4 Deletar jogo pelo ID 1 (Requer ADMIN)
 DELETE {{host}}/jogos/1
-Authorization: Bearer {{token}}
+Authorization: Bearer {{auth_token}}
 
 ### 4.5 Deletar o usuário 1 (Requer Autenticação)
 DELETE {{host}}/usuarios/1
-Authorization: Bearer {{token}}
+Authorization: Bearer {{auth_token}}

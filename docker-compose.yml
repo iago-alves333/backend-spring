@@ -1,0 +1,27 @@
+
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: minha_api_db
+      POSTGRES_USER: api_user
+      POSTGRES_PASSWORD: senha123
+    ports:
+      - "5433:5432"
+
+  api:
+    build: .
+    container_name: springboot_api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/minha_api_db
+      DB_USERNAME: api_user
+      DB_PASSWORD: senha123
+
+      TWITCH_CLIENT_ID: ${TWITCH_CLIENT_ID}
+      TWITCH_CLIENT_SECRET: ${TWITCH_CLIENT_SECRET}
+      JWT_SECRET: ${JWT_SECRET}
