@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Busca de Capas de Jogos</title>
+    <style>
+        :root {
+            --bg: #14161c;
+            --panel: #1c1f28;
+            --accent: #6d8cff;
+            --text: #e8e9ee;
+            --muted: #8a8f9c;
+            --danger: #ff6b6b;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 32px 16px 64px;
+        }
+        .wrap { max-width: 900px; margin: 0 auto; }
+        h1 { font-size: 1.4rem; margin-bottom: 4px; }
+        p.sub { color: var(--muted); margin-top: 0; margin-bottom: 24px; font-size: 0.9rem; }
+
+        .config {
+            background: var(--panel);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .config label { font-size: 0.8rem; color: var(--muted); display: block; margin-bottom: 4px; }
+        .config input {
+            background: #10121a;
+            border: 1px solid #2a2e3a;
+            border-radius: 6px;
+            padding: 8px 10px;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+        #baseUrl { width: 260px; }
+
+        .search-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        #nomeInput {
+            flex: 1;
+            background: var(--panel);
+            border: 1px solid #2a2e3a;
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: var(--text);
+            font-size: 1rem;
+        }
+        #nomeInput:focus { outline: 2px solid var(--accent); }
+
+        button {
+            background: var(--accent);
+            color: #0d0e12;
+            border: none;
+            border-radius: 8px;
+            padding: 0 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        button:hover { filter: brightness(1.08); }
+        button:disabled { opacity: 0.6; cursor: default; }
+
+        #status { color: var(--muted); font-size: 0.9rem; margin-bottom: 16px; min-height: 1.2em; }
+        #status.error { color: var(--danger); }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px;
+        }
+        .card {
+            background: var(--panel);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #262a35;
+        }
+        .card img {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+            background: #10121a;
+            display: block;
+        }
+        .card .info { padding: 10px 12px; }
+        .card .title { font-size: 0.9rem; font-weight: 600; margin: 0 0 2px; }
+        .card .year { font-size: 0.78rem; color: var(--muted); margin: 0; }
+
+        .no-image {
+            width: 100%;
+            aspect-ratio: 3/4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #10121a;
+            color: var(--muted);
+            font-size: 0.75rem;
+            text-align: center;
+            padding: 8px;
+        }
+
+        details {
+            margin-top: 28px;
+            background: var(--panel);
+            border-radius: 10px;
+            padding: 12px 16px;
+        }
+        summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; }
+        pre {
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <h1>Teste — Busca de capas de jogos</h1>
+    <p class="sub">Chama <code>GET /api/v1/jogos/externo/buscar?nome=...</code> da sua API Spring Boot.</p>
+
+    <div class="config">
+        <div>
+            <label for="baseUrl">URL base da API</label>
+            <input id="baseUrl" type="text" value="http://localhost:8080" />
+        </div>
+    </div>
+
+    <div class="search-row">
+        <input id="nomeInput" type="text" placeholder="Nome do jogo (ex: The Witcher 3)" />
+        <button id="buscarBtn">Buscar</button>
+    </div>
+
+    <div id="status"></div>
+    <div id="grid" class="grid"></div>
+
+    <details id="rawDetails" style="display:none;">
+        <summary>Ver resposta bruta (JSON)</summary>
+        <pre id="rawJson"></pre>
+    </details>
+</div>
+
+<script>
+    const baseUrlInput = document.getElementById('baseUrl');
+    const nomeInput = document.getElementById('nomeInput');
+    const buscarBtn = document.getElementById('buscarBtn');
+    const statusEl = document.getElementById('status');
+    const gridEl = document.getElementById('grid');
+    const rawDetails = document.getElementById('rawDetails');
+    const rawJsonEl = document.getElementById('rawJson');
+
+    function setStatus(msg, isError) {
+        statusEl.textContent = msg;
+        statusEl.classList.toggle('error', !!isError);
+    }
+
+    // Tenta achar o valor de um campo entre vários nomes possíveis,
+    // já que não sei exatamente como o JogoBuscaExternaDTO está montado.
+    function pick(obj, keys) {
+        for (const k of keys) {
+            if (obj && obj[k] !== undefined && obj[k] !== null && obj[k] !== '') {
+                return obj[k];
+            }
+        }
+        return null;
+    }
+
+    function normalizarJogo(item) {
+        const titulo = pick(item, ['nome', 'titulo', 'title', 'name']);
+        let capa = pick(item, ['urlImagem', 'capaUrl', 'imageUrl', 'imagemUrl', 'coverUrl', 'capa', 'urlCapa', 'cover']);
+        const ano = pick(item, ['ano', 'anoLancamento', 'releaseYear', 'year']);
+
+        // IGDB às vezes retorna URLs sem protocolo (ex: //images.igdb.com/...)
+        if (capa && capa.startsWith('//')) {
+            capa = 'https:' + capa;
+        }
+
+        return { titulo: titulo || '(sem título)', capa, ano };
+    }
+
+    function renderResultados(lista) {
+        gridEl.innerHTML = '';
+        if (!Array.isArray(lista) || lista.length === 0) {
+            setStatus('Nenhum jogo encontrado.');
+            return;
+        }
+        // Pega apenas o primeiro resultado
+        lista = [lista[0]];
+
+        setStatus(`${lista.length} resultado(s) encontrado(s).`);
+
+        lista.forEach(raw => {
+            const jogo = normalizarJogo(raw);
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            if (jogo.capa) {
+                const img = document.createElement('img');
+                img.src = jogo.capa;
+                img.alt = jogo.titulo;
+                img.onerror = () => {
+                    img.replaceWith(criarNoImage());
+                };
+                card.appendChild(img);
+            } else {
+                card.appendChild(criarNoImage());
+            }
+
+            const info = document.createElement('div');
+            info.className = 'info';
+            const h = document.createElement('p');
+            h.className = 'title';
+            h.textContent = jogo.titulo;
+            info.appendChild(h);
+            if (jogo.ano) {
+                const y = document.createElement('p');
+                y.className = 'year';
+                y.textContent = jogo.ano;
+                info.appendChild(y);
+            }
+            card.appendChild(info);
+            gridEl.appendChild(card);
+        });
+    }
+
+    function criarNoImage() {
+        const div = document.createElement('div');
+        div.className = 'no-image';
+        div.textContent = 'Sem capa disponível';
+        return div;
+    }
+
+    async function buscar() {
+        const nome = nomeInput.value.trim();
+        if (!nome) {
+            setStatus('Digite o nome de um jogo primeiro.', true);
+            return;
+        }
+
+        const base = baseUrlInput.value.trim().replace(/\/$/, '');
+        const url = `${base}/api/v1/jogos/externo/buscar?nome=${encodeURIComponent(nome)}`;
+
+        buscarBtn.disabled = true;
+        setStatus('Buscando...');
+        gridEl.innerHTML = '';
+        rawDetails.style.display = 'none';
+
+        try {
+            const resp = await fetch(url);
+            const contentType = resp.headers.get('content-type') || '';
+            const bodyText = await resp.text();
+
+            if (!resp.ok) {
+                setStatus(`Erro ${resp.status} ao chamar a API. Veja detalhes abaixo.`, true);
+                rawJsonEl.textContent = bodyText;
+                rawDetails.style.display = 'block';
+                return;
+            }
+
+            let data;
+            try {
+                data = contentType.includes('application/json') ? JSON.parse(bodyText) : JSON.parse(bodyText);
+            } catch (e) {
+                setStatus('A resposta não é um JSON válido.', true);
+                rawJsonEl.textContent = bodyText;
+                rawDetails.style.display = 'block';
+                return;
+            }
+
+            rawJsonEl.textContent = JSON.stringify(data, null, 2);
+            rawDetails.style.display = 'block';
+
+            renderResultados(data);
+        } catch (err) {
+            setStatus(
+                'Falha ao conectar na API. Verifique se ela está rodando, se a URL base está certa e se o CORS está liberado. Detalhe: ' + err.message,
+                true
+            );
+        } finally {
+            buscarBtn.disabled = false;
+        }
+    }
+
+    buscarBtn.addEventListener('click', buscar);
+    nomeInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') buscar();
+    });
+</script>
+</body>
+</html>
