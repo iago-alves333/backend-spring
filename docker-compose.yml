@@ -23,8 +23,6 @@ services:
       # e força a API a procurar o banco pelo nome do container "db" e porta "5432"
       DB_URL: jdbc:postgresql://db:5432/minha_api_db
       DB_USERNAME: api_user
-      DB_PASSWORD: ${DB_PASSWORD}
-      
       # Estas variáveis vão puxar os valores do arquivo .env da máquina de quem estiver rodando
       TWITCH_CLIENT_ID: ${TWITCH_CLIENT_ID}
       TWITCH_CLIENT_SECRET: ${TWITCH_CLIENT_SECRET}
