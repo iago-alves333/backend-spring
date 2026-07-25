@@ -16,11 +16,11 @@
 -- -------------------------------------------------------------
 INSERT INTO usuarios (nome, email, senha, saldo, is_admin)
 VALUES
-  ('Administrador', 'admin@loja.com',  '$2a$10$8K1p/a0dL1LXMIgoEDFrwOfMQbLgtnOoKsWc.6U47uQHqmTtynrai', 0.00,    true),
-  ('Iago Alves',    'iago@email.com',  '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lihC', 500.00,  false),
-  ('Maria Souza',   'maria@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lihC', 250.00,  false),
-  ('Carlos Lima',   'carlos@email.com','$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lihC', 1000.00, false),
-  ('Ana Paula',     'ana@email.com',   '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lihC', 75.50,   false)
+  ('Administrador', 'admin@loja.com',  '$2a$10$V8q298Sna5ZNs46al2xO3eQ7cqarkN1rUX14FcB8hLrV/Ye1QXsc.', 0.00,    true),
+  ('Iago Alves',    'iago@email.com',  '$2a$10$nyHwd48gCGW0OMr985TG7uOuH7PO2k9ca1ynbXvC.QZZdz08syCXC', 500.00,  false),
+  ('Maria Souza',   'maria@email.com', '$2a$10$nyHwd48gCGW0OMr985TG7uOuH7PO2k9ca1ynbXvC.QZZdz08syCXC', 250.00,  false),
+  ('Carlos Lima',   'carlos@email.com','$2a$10$nyHwd48gCGW0OMr985TG7uOuH7PO2k9ca1ynbXvC.QZZdz08syCXC', 1000.00, false),
+  ('Ana Paula',     'ana@email.com',   '$2a$10$nyHwd48gCGW0OMr985TG7uOuH7PO2k9ca1ynbXvC.QZZdz08syCXC', 75.50,   false)
 ON CONFLICT (email) DO NOTHING;
 
 -- -------------------------------------------------------------
