@@ -7,7 +7,7 @@
 --   senha123  -> hash dos usuários comuns
 --
 -- Como executar manualmente:
---   psql -h 127.0.0.1 -p 5434 -U api_user -d minha_api_db -f import.sql
+--   psql -h 127.0.0.1 -p 5434 -U api_user -d minha_api_db -f data.sql
 -- =============================================================
 
 -- -------------------------------------------------------------

@@ -11,6 +11,11 @@ services:
       - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U api_user -d minha_api_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   api:
     build: .
@@ -18,7 +23,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       # e força a API a procurar o banco pelo nome do container "db" e porta "5432"
       DB_URL: jdbc:postgresql://db:5432/minha_api_db
