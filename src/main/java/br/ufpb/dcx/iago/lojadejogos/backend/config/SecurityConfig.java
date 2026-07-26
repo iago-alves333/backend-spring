@@ -4,6 +4,8 @@ import br.ufpb.dcx.iago.lojadejogos.backend.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,8 +40,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // Habilita o suporte a CORS do Spring Security, delegando para o
+                // CorsConfigurer definido em CorsConfiguration.java.
+                // Sem isso, o Security bloquearia o preflight OPTIONS antes do CORS agir.
+                .cors(Customizer.withDefaults())
+
                 // Desabilita CSRF — necessário para APIs REST stateless (sem cookies de sessão)
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
 
                 // Política STATELESS — o Spring NÃO cria sessão HTTP. Cada requisição
                 // deve trazer o token JWT no header. Isso é o padrão correto para APIs REST.
