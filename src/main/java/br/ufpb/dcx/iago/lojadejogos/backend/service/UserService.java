@@ -11,6 +11,7 @@ import br.ufpb.dcx.iago.lojadejogos.backend.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,6 +96,26 @@ public class UserService {
         usuario.setNome(dto.getNome());
         usuario.setEmail(dto.getEmail());
 
+        User userAtualizado = userRepository.save(usuario);
+        return converterUserParaDTO(userAtualizado);
+    }
+
+    /**
+     * Adiciona saldo na conta de um usuário.
+     *
+     * @param id Identificador do usuário.
+     * @param valor Valor monetário a ser somado ao saldo.
+     * @return UserResponseDTO atualizado.
+     * @throws UsuarioNaoEncontradoException Se o usuário não existir.
+     */
+    public UserResponseDTO adicionarSaldo(Long id, BigDecimal valor) {
+        User usuario = userRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado"));
+        if (valor == null || valor.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("O valor a ser adicionado deve ser maior que zero");
+        }
+        BigDecimal saldoAtual = usuario.getSaldo() != null ? usuario.getSaldo() : BigDecimal.ZERO;
+        usuario.setSaldo(saldoAtual.add(valor));
         User userAtualizado = userRepository.save(usuario);
         return converterUserParaDTO(userAtualizado);
     }

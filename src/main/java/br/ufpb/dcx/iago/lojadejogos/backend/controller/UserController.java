@@ -9,7 +9,9 @@ import org.springframework.http.HttpStatus; // Não esqueça deste import
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Controlador REST para o gerenciamento de usuários do sistema.
@@ -75,6 +77,21 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> atualizarUsuario(@PathVariable Long id, @Valid @RequestBody UserRequestDTO dto) {
         UserResponseDTO usuarioAtualizado = userService.atualizar(id, dto);
         return ResponseEntity.ok(usuarioAtualizado); // 200 OK
+    }
+
+    /**
+     * Adiciona saldo à carteira de um usuário.
+     * Rota: PATCH ou POST /api/v1/usuarios/{id}/saldo
+     *
+     * @param id ID do usuário passado como parâmetro da rota (@PathVariable).
+     * @param payload Map contendo a chave "valor" com o montante a ser adicionado.
+     * @return 200 OK com as informações atualizadas do usuário.
+     */
+    @RequestMapping(value = "/{id}/saldo", method = {RequestMethod.PATCH, RequestMethod.POST})
+    public ResponseEntity<UserResponseDTO> adicionarSaldo(@PathVariable Long id, @RequestBody Map<String, BigDecimal> payload) {
+        BigDecimal valor = payload.get("valor");
+        UserResponseDTO usuarioAtualizado = userService.adicionarSaldo(id, valor);
+        return ResponseEntity.ok(usuarioAtualizado);
     }
 
     /**
