@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * Testes unitários para o UserService.
- * Valida as regras de criação de usuário, unicidade de email e adição de saldo.
+ * Valida as regras de criação de usuário, unicidade de email e atualização de dados básicos.
  */
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -104,39 +104,103 @@ public class UserServiceTest {
         verify(userRepository, never()).save(any(User.class));
     }
 
+    // CORREÇÃO: o teste anterior (deveAdicionarSaldoAoUsuarioComSucesso) era um
+    // falso positivo. Ele setava o saldo esperado manualmente no objeto ANTES de
+    // chamar o serviço e fazia o mock de save() devolver um objeto já pronto com
+    // o saldo certo — ou seja, passava independentemente do que atualizar() faz.
     @Test
-    void deveAdicionarSaldoAoUsuarioComSucesso() {
+    void naoDeveAlterarSaldoAoAtualizarDadosBasicos() {
         User usuario = criarUserSalvo();
-        BigDecimal saldoOriginal = usuario.getSaldo();           // 100.00
-        BigDecimal incremento = BigDecimal.valueOf(50.00);
-        BigDecimal saldoEsperado = saldoOriginal.add(incremento); // 150.00
+        BigDecimal saldoOriginal = usuario.getSaldo();
 
-        // Simula o novo saldo diretamente na entidade (como o serviço faria)
-        usuario.setSaldo(saldoEsperado);
+        UserRequestDTO dto = criarUserRequestDTO();
+        dto.setSaldo(BigDecimal.valueOf(999.00));
 
-        User userAtualizado = new User();
-        userAtualizado.setId(1L);
-        userAtualizado.setNome("João Silva");
-        userAtualizado.setEmail("joao@teste.com");
-        userAtualizado.setSaldo(saldoEsperado);
-        userAtualizado.setAdmin(false);
-
-        // Mock: busca pelo ID retorna o usuário
         when(userRepository.findById(1L)).thenReturn(Optional.of(usuario));
-        // Mock: o save persiste e retorna o usuário com saldo atualizado
-        when(userRepository.save(any(User.class))).thenReturn(userAtualizado);
+        when(userRepository.save(any(User.class))).thenReturn(usuario);
 
-        // Chama o método de atualização (usamos atualizar para simular a persistência de saldo)
-        UserRequestDTO dtoUpdate = new UserRequestDTO();
-        dtoUpdate.setNome("João Silva");
-        dtoUpdate.setEmail("joao@teste.com");
-        dtoUpdate.setSenha("senha123");
-        dtoUpdate.setSaldo(saldoEsperado);
+        UserResponseDTO resposta = userService.atualizar(1L, dto);
 
-        UserResponseDTO resposta = userService.atualizar(1L, dtoUpdate);
-
-        // Valida a persistência do novo saldo
-        assertThat(resposta.getSaldo()).isEqualByComparingTo(saldoEsperado);
+        // O saldo deve permanecer o original, atualizar() não mexe nesse campo
+        assertThat(resposta.getSaldo()).isEqualByComparingTo(saldoOriginal);
         verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    void deveLancarExcecaoAoBuscarUsuarioInexistente() {
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.buscarPorId(99L))
+                .isInstanceOf(br.ufpb.dcx.iago.lojadejogos.backend.exception.UsuarioNaoEncontradoException.class);
+    }
+
+    @Test
+    void deveLancarExcecaoAoDeletarUsuarioInexistente() {
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.deletarPorId(99L))
+                .isInstanceOf(br.ufpb.dcx.iago.lojadejogos.backend.exception.UsuarioNaoEncontradoException.class);
+    }
+
+    @Test
+    void deveLancarExcecaoAoAtualizarUsuarioComEmailDeOutro() {
+        User usuarioOriginal = criarUserSalvo(); // id 1, joao@teste.com
+        UserRequestDTO dto = criarUserRequestDTO();
+        dto.setEmail("maria@teste.com"); // Email que já pertence a outra pessoa
+
+        User usuarioExistente = new User();
+        usuarioExistente.setId(2L);
+        usuarioExistente.setEmail("maria@teste.com");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(usuarioOriginal));
+        when(userRepository.findByEmail(dto.getEmail())).thenReturn(Optional.of(usuarioExistente));
+
+        assertThatThrownBy(() -> userService.atualizar(1L, dto))
+                .isInstanceOf(EmailJaCadastradoException.class);
+
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void deveAtualizarUsuarioComSucesso() {
+        User usuarioOriginal = criarUserSalvo();
+        UserRequestDTO dto = criarUserRequestDTO();
+        dto.setNome("Nome Atualizado");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(usuarioOriginal));
+        when(userRepository.save(any(User.class))).thenReturn(usuarioOriginal);
+
+        UserResponseDTO resposta = userService.atualizar(1L, dto);
+
+        assertThat(resposta.getNome()).isEqualTo("Nome Atualizado");
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    void deveListarJogosDoUsuarioComSucesso() {
+        User usuario = criarUserSalvo();
+        br.ufpb.dcx.iago.lojadejogos.backend.model.Jogo jogo = new br.ufpb.dcx.iago.lojadejogos.backend.model.Jogo();
+        jogo.setId(10L);
+        jogo.setNome("The Witcher");
+        usuario.setJogos(java.util.List.of(jogo));
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(usuario));
+
+        java.util.List<br.ufpb.dcx.iago.lojadejogos.backend.dto.JogoResponseDTO> jogos = userService.listarJogosDOUsuario(1L);
+
+        assertThat(jogos).hasSize(1);
+        assertThat(jogos.get(0).getNome()).isEqualTo("The Witcher");
+    }
+
+    @Test
+    void deveListarJogosDoUsuarioVazio() {
+        User usuario = criarUserSalvo();
+        usuario.setJogos(new java.util.ArrayList<>());
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(usuario));
+
+        java.util.List<br.ufpb.dcx.iago.lojadejogos.backend.dto.JogoResponseDTO> jogos = userService.listarJogosDOUsuario(1L);
+
+        assertThat(jogos).isEmpty();
     }
 }

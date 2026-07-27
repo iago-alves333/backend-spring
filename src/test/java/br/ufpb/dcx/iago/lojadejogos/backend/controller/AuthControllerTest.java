@@ -86,7 +86,7 @@ public class AuthControllerTest {
         request.setEmail("usuario@teste.com");
         request.setSenha("senhaErrada");
 
-        // Repositório acha o usuário, mas a senha NÃO bate
+        // Repositório acha o usuário, mas a senha não bate
         when(userRepository.findByEmail("usuario@teste.com")).thenReturn(Optional.of(usuarioValido));
         when(passwordEncoder.matches("senhaErrada", "$2a$10$hashBcrypt")).thenReturn(false);
 

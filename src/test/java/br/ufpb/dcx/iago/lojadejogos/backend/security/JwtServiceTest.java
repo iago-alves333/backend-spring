@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(MockitoExtension.class)
 public class JwtServiceTest {
 
-    // Instância real do serviço — não precisa de mock pois não tem dependências externas
+    // Instância real do serviço não precisa de mock, pois não tem dependências externas
     private JwtService jwtService;
 
     @BeforeEach
