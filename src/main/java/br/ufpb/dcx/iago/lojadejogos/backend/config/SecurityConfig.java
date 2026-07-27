@@ -4,7 +4,6 @@ import br.ufpb.dcx.iago.lojadejogos.backend.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -12,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 /**
  * Configuração central do Spring Security.
@@ -27,9 +27,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CorsConfigurationSource corsConfigurationSource;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                          CorsConfigurationSource corsConfigurationSource) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.corsConfigurationSource = corsConfigurationSource;
     }
 
     @Bean
@@ -40,10 +43,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Habilita o suporte a CORS do Spring Security, delegando para o
-                // CorsConfigurer definido em CorsConfiguration.java.
+                // Habilita o CORS usando o CorsConfigurationSource definido em CorsConfig.java.
                 // Sem isso, o Security bloquearia o preflight OPTIONS antes do CORS agir.
-                .cors(Customizer.withDefaults())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
 
                 // Desabilita CSRF — necessário para APIs REST stateless (sem cookies de sessão)
                 .csrf(AbstractHttpConfigurer::disable)
@@ -55,6 +57,10 @@ public class SecurityConfig {
 
                 // Regras de autorização por rota
                 .authorizeHttpRequests(auth -> auth
+                        // --- Preflight CORS: o browser envia OPTIONS antes de qualquer requisição ---
+                        // Deve ser permitAll para que o Security nunca bloqueie o handshake CORS
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                         // --- ROTAS PÚBLICAS (qualquer pessoa acessa, sem token) ---
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/usuarios").permitAll()     // Registro
