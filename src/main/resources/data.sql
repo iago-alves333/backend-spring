@@ -26,6 +26,9 @@ ON CONFLICT (email) DO NOTHING;
 -- -------------------------------------------------------------
 -- JOGOS
 -- -------------------------------------------------------------
+ALTER TABLE jogo DROP CONSTRAINT IF EXISTS uk_jogo_nome;
+ALTER TABLE jogo ADD CONSTRAINT uk_jogo_nome UNIQUE (nome);
+
 INSERT INTO jogo (nome, preco, tipo, url_imagem, descricao)
 VALUES
   ('The Witcher 3: Wild Hunt', 69.90, 'RPG',
@@ -67,7 +70,7 @@ VALUES
   ('Stardew Valley', 29.90, 'RPG',
    'https://images.igdb.com/igdb/image/upload/t_cover_big/co5s6t.jpg',
    'Você herdou a velha fazenda do seu avô em Stardew Valley. Com algumas ferramentas e algumas moedas, você começa uma nova vida longe do estressante mundo corporativo.')
-ON CONFLICT DO NOTHING;
+ON CONFLICT (nome) DO NOTHING;
 
 -- -------------------------------------------------------------
 -- COMPRAS

@@ -5,8 +5,10 @@ import br.ufpb.dcx.iago.lojadejogos.backend.dto.JogoResponseDTO;
 import br.ufpb.dcx.iago.lojadejogos.backend.exception.PrecoInvalidoException;
 import br.ufpb.dcx.iago.lojadejogos.backend.exception.ResourceNotFoundException;
 import br.ufpb.dcx.iago.lojadejogos.backend.model.Jogo;
+import br.ufpb.dcx.iago.lojadejogos.backend.repository.CompraRepository;
 import br.ufpb.dcx.iago.lojadejogos.backend.repository.JogoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
@@ -22,9 +24,11 @@ public class JogoService {
 
 
     private final JogoRepository jogoRepository;
+    private final CompraRepository compraRepository;
 
-    public JogoService(JogoRepository jogoRepository) {
+    public JogoService(JogoRepository jogoRepository, CompraRepository compraRepository) {
         this.jogoRepository = jogoRepository;
+        this.compraRepository = compraRepository;
     }
 
     public List<JogoResponseDTO> listarTodos() {
@@ -75,11 +79,14 @@ public class JogoService {
         return converterParaDTO(j);
     }
 
+    @Transactional
     public void deletarPorId(Long id) throws ResourceNotFoundException {
         // Correção 1.4: Verifica com existsById e lança ResourceNotFoundException
         if (!jogoRepository.existsById(id)) {
             throw new ResourceNotFoundException();
         }
+        compraRepository.deleteByJogoId(id);
+        jogoRepository.removerAssociacoesUsuarioJogo(id);
         jogoRepository.deleteById(id);
     }
 

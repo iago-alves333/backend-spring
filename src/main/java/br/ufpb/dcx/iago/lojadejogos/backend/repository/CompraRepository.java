@@ -14,5 +14,5 @@ import java.util.List;
  */
 public interface CompraRepository extends JpaRepository<Compra,Long> {
     List<Compra> findByUserId(Long userId);
-
+    void deleteByJogoId(Long jogoId);
 }

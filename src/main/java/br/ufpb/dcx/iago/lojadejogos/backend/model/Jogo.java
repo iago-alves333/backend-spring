@@ -15,6 +15,7 @@ public class Jogo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String nome;
     private BigDecimal preco;
     private String tipo;
